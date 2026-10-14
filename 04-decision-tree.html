@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Decision Tree | ML Visual Lab</title><meta name="description" content="ต้นไม้แบ่งพื้นที่ด้วยเส้นตั้งและเส้นนอนทีละเส้น โดยเลือกเส้นที่ทำให้แต่ละฝั่งมีคลาสปนกันน้อยที่สุด เลื่อนเมาส์บนกราฟเพื่อดูเส้นทางคำถามที่จุดนั้นต้องผ่าน">
+<title>Decision Tree | Visualize Machine Learning Algorithm</title><meta name="description" content="ต้นไม้แบ่งพื้นที่ด้วยเส้นตั้งและเส้นนอนทีละเส้น โดยเลือกเส้นที่ทำให้แต่ละฝั่งมีคลาสปนกันน้อยที่สุด เลื่อนเมาส์บนกราฟเพื่อดูเส้นทางคำถามที่จุดนั้นต้องผ่าน">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"><style>
 *{box-sizing:border-box}
 :root{--paper:#F6F7F1;--grid:#E3E7DA;--ink:#18222F;--muted:#566170;--line:#C9D0C0;--blue:#1F5FBF;--rose:#C0265E;--gold:#D49A00;--green:#2E8B57;--violet:#6B3FA0;--white:#FFFFFF}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;font-family:'Anuphan',system-ui,sans-serif;color:var(--ink);background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;line-height:1.6;font-size:16px}
-.topnav,.hero,.lab,.explain,.pager,.index{max-width:1240px;margin:0 auto;padding-left:24px;padding-right:24px}
+.topnav,.hero,.lab,.learn,.explain,.pager,.index{max-width:1240px;margin:0 auto;padding-left:24px;padding-right:24px}
 .topnav{display:flex;gap:18px;align-items:center;padding-top:16px;padding-bottom:10px}
 .brand{font-weight:700;color:var(--ink);text-decoration:none;white-space:nowrap;font-size:17px}
 .pills{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 6px}
@@ -60,14 +60,35 @@ button:hover{transform:translate(-1px,-1px);box-shadow:2px 2px 0 var(--ink)}
 .pager a:hover{color:var(--blue);border-color:var(--blue)}
 .thumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
 .thumbs canvas{height:auto;aspect-ratio:1;border:1px solid var(--line)}
+.learn{padding-top:8px;padding-bottom:36px}
+.learn h2{font-size:23px;margin:0 0 10px}
+.usefor{display:inline-block;margin:0 0 12px;padding:3px 12px;background:var(--white);border:1.5px solid var(--ink);border-radius:999px;font-weight:600;font-size:15px}
+.what{max-width:78ch;font-size:16.5px;line-height:1.85;margin:0 0 20px}
+.kcols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:16px}
+.kcols.two{grid-template-columns:1.4fr 1fr}
+.kbox{background:var(--white);border:1.5px solid var(--line);border-top:4px solid var(--blue);border-radius:4px;padding:14px 16px}
+.kbox.good{border-top-color:var(--green)}.kbox.bad{border-top-color:var(--rose)}.kbox.when{border-top-color:var(--gold)}
+.kbox h3{margin:0 0 8px;font-size:16px}
+.kbox ul{margin:0;padding-left:20px}.kbox li{margin-bottom:6px;font-size:15px}
+.kbox p{margin:0;font-size:15.5px}
+.kbox dl{margin:0}.prm{display:grid;grid-template-columns:150px 1fr;gap:10px;padding:7px 0;border-top:1px dashed var(--line);font-size:15px}.prm:first-child{border-top:0;padding-top:0}
+.prm dt{font-weight:600}.prm dd{margin:0;color:var(--muted)}
+@media (max-width:960px){.kcols,.kcols.two{grid-template-columns:1fr}.prm{grid-template-columns:1fr;gap:2px}}
 @media (max-width:960px){.lab{grid-template-columns:1fr}.panel{position:static;max-height:none}.explain{grid-template-columns:1fr}.thumbs{grid-template-columns:repeat(3,1fr)}}
 @media (prefers-reduced-motion:reduce){button{transition:none}button:hover{transform:none}}
 </style></head><body>
-<nav class="topnav" aria-label="อัลกอริทึมทั้งหมด"><a class="brand" href="index.html">ML Visual Lab</a><div class="pills"><a href="01-linear-regression.html" title="Linear Regression">1</a><a href="02-logistic-regression.html" title="Logistic Regression">2</a><a href="03-knn.html" title="k-Nearest Neighbors">3</a><a href="04-decision-tree.html" title="Decision Tree" aria-current="page">4</a><a href="05-random-forest.html" title="Random Forest">5</a><a href="06-svm.html" title="Support Vector Machine">6</a><a href="07-kmeans.html" title="K-Means">7</a><a href="08-mlp.html" title="MLP Neural Network">8</a><a href="09-cnn.html" title="CNN">9</a><a href="10-lstm.html" title="LSTM">10</a><a href="11-transformer.html" title="Transformer">11</a><a href="12-reinforcement-learning.html" title="Reinforcement Learning">12</a><a href="13-xgboost.html" title="XGBoost">13</a><a href="14-stacking.html" title="Stacking">14</a></div></nav>
+<nav class="topnav" aria-label="อัลกอริทึมทั้งหมด"><a class="brand" href="index.html">Visualize ML Algorithm</a><div class="pills"><a href="01-linear-regression.html" title="Linear Regression">1</a><a href="02-logistic-regression.html" title="Logistic Regression">2</a><a href="03-knn.html" title="k-Nearest Neighbors">3</a><a href="04-decision-tree.html" title="Decision Tree" aria-current="page">4</a><a href="05-random-forest.html" title="Random Forest">5</a><a href="06-svm.html" title="Support Vector Machine">6</a><a href="07-kmeans.html" title="K-Means">7</a><a href="08-mlp.html" title="MLP Neural Network">8</a><a href="09-cnn.html" title="CNN">9</a><a href="10-lstm.html" title="LSTM">10</a><a href="11-transformer.html" title="Transformer">11</a><a href="12-reinforcement-learning.html" title="Reinforcement Learning">12</a><a href="13-xgboost.html" title="XGBoost">13</a><a href="14-stacking.html" title="Stacking">14</a></div></nav>
 <header class="hero"><span class="cat cat-sup">Supervised learning</span><h1>Decision Tree</h1><p class="th">ต้นไม้ตัดสินใจ: ถามคำถามใช่/ไม่ใช่ ทีละข้อ</p><p class="lede">ต้นไม้แบ่งพื้นที่ด้วยเส้นตั้งและเส้นนอนทีละเส้น โดยเลือกเส้นที่ทำให้แต่ละฝั่งมีคลาสปนกันน้อยที่สุด เลื่อนเมาส์บนกราฟเพื่อดูเส้นทางคำถามที่จุดนั้นต้องผ่าน</p></header>
 <main class="lab"><section class="stage" aria-label="ภาพจำลอง"><div class="plate"><canvas id="cv" style="aspect-ratio:4/3"></canvas><div class="hint">จุดทึบคือข้อมูลฝึก จุดกลวงคือข้อมูลทดสอบ</div></div>
 <div class="subs"><div class="sub wide"><h3>โครงสร้างต้นไม้ (เส้นหนาคือเส้นทางของจุดที่เมาส์ชี้)</h3><canvas id="tree" style="height:250px"></canvas></div><div class="sub wide"><h3>กฎของจุดที่เมาส์ชี้</h3><pre id="rule">เลื่อนเมาส์บนกราฟ</pre></div></div></section>
 <aside class="panel" aria-label="ปรับค่า"><fieldset><legend>ข้อมูล</legend><label class="ctl"><span>ชุดข้อมูล</span><select id="ds"><option value="blobs3">สามกลุ่ม</option><option value="moons" selected>พระจันทร์เสี้ยว</option><option value="circles">วงกลมซ้อน</option><option value="xor">XOR</option><option value="spiral">เกลียว</option></select></label><label class="ctl"><span>จำนวนจุด<output for="n"></output></span><input type="range" id="n" min="20" max="400" step="10" value="200"></label><label class="ctl"><span>สัญญาณรบกวน<output for="noise"></output></span><input type="range" id="noise" min="0" max="1" step="0.01" value="0.4"></label><label class="chk"><input type="checkbox" id="split" checked><span>แยกข้อมูลทดสอบ 30%</span></label><div class="btns"><button id="newdata" type="button">สุ่มข้อมูลใหม่</button></div></fieldset><fieldset><legend>โมเดล</legend><label class="ctl"><span>ความลึกสูงสุด<output for="depth"></output></span><input type="range" id="depth" min="1" max="12" step="1" value="4"></label><label class="ctl"><span>จำนวนจุดขั้นต่ำที่จะแบ่งต่อ<output for="minsplit"></output></span><input type="range" id="minsplit" min="2" max="40" step="1" value="2"></label><label class="ctl"><span>เกณฑ์วัดความปน</span><select id="crit"><option value="gini">Gini impurity</option><option value="entropy">Entropy</option></select></label><label class="chk"><input type="checkbox" id="lines" checked><span>แสดงเส้นแบ่ง</span></label></fieldset><div class="readout" id="readout" aria-live="polite"></div></aside></main>
+<section class="learn" aria-label="ความรู้เพิ่มเติม"><h2>ทำความรู้จัก</h2>
+<p class="usefor">ใช้ทำอะไร: ตัดสินใจด้วยลำดับคำถาม อ่านเป็นกฎได้</p><p class="what">Decision Tree แบ่งข้อมูลด้วยคำถามใช่/ไม่ใช่ทีละข้อ เช่น อายุ ≤ 30 หรือไม่ แต่ละครั้งเลือกคำถามที่ทำให้ข้อมูลสองฝั่งบริสุทธิ์ขึ้นมากที่สุด วัดด้วย Gini impurity หรือ Entropy ทำซ้ำจนถึงใบ (leaf) ที่ให้คำตอบ อัลกอริทึมที่นิยมคือ CART ซึ่งเป็นแบบที่ใช้ในหน้านี้ ผลลัพธ์อ่านเป็นกฎ if-then ได้ทันที จึงเป็นโมเดลที่อธิบายง่ายที่สุดตัวหนึ่ง</p>
+<div class="kcols"><div class="kbox"><h3>ตัวอย่างการใช้งานจริง</h3><ul><li>อนุมัติสินเชื่อตามเกณฑ์ที่ตรวจสอบได้</li><li>คัดกรองผู้ป่วยตามอาการ</li><li>วิเคราะห์ว่าลูกค้ากลุ่มไหนมีแนวโน้มยกเลิกบริการ</li><li>เป็นส่วนประกอบของ Random Forest และ XGBoost</li></ul></div>
+<div class="kbox good"><h3>จุดเด่น</h3><ul><li>อธิบายได้ วาดเป็นแผนผังให้คนทั่วไปอ่านได้</li><li>ไม่ต้องปรับสเกลฟีเจอร์ ใช้ได้ทั้งตัวเลขและหมวดหมู่</li><li>จับความสัมพันธ์ที่ไม่เป็นเชิงเส้นและปฏิสัมพันธ์ของฟีเจอร์ได้เอง</li></ul></div>
+<div class="kbox bad"><h3>ข้อจำกัด</h3><ul><li>Overfit ง่ายมากถ้าปล่อยให้ลึก</li><li>ไม่เสถียร ข้อมูลเปลี่ยนนิดเดียวต้นไม้อาจเปลี่ยนทั้งต้น</li><li>เส้นแบ่งเป็นขั้นบันไดตามแกน จับเส้นทแยงได้ไม่เนียน</li></ul></div></div>
+<div class="kcols two"><div class="kbox"><h3>พารามิเตอร์สำคัญ</h3><dl><div class="prm"><dt>max_depth</dt><dd>ความลึกสูงสุด ตัวควบคุม overfitting ที่สำคัญที่สุด</dd></div><div class="prm"><dt>min_samples_split</dt><dd>จำนวนข้อมูลขั้นต่ำที่ยอมให้แบ่งต่อ</dd></div><div class="prm"><dt>criterion</dt><dd>Gini หรือ Entropy มักให้ผลใกล้เคียงกัน</dd></div></dl></div>
+<div class="kbox when"><h3>ควรเลือกใช้เมื่อไร</h3><p>เลือกใช้เมื่อต้องอธิบายเหตุผลของการตัดสินใจ หรือใช้เป็นฐานของโมเดล ensemble</p></div></div></section>
 <section class="explain"><div><h2>ทำงานอย่างไร</h2><ol class="steps"><li>เริ่มที่ราก มีข้อมูลทุกจุดอยู่ในโหนดเดียว</li><li>ลองทุกเส้นแบ่งที่เป็นไปได้ในแกน x และ y แล้ววัดความปน (Gini หรือ Entropy) ของสองฝั่ง</li><li>เลือกเส้นที่ลดความปนได้มากที่สุด (information gain สูงสุด)</li><li>ทำซ้ำกับแต่ละฝั่งจนถึงความลึกสูงสุด หรือโหนดบริสุทธิ์แล้ว หรือมีจุดน้อยเกินไป</li><li>ใบ (leaf) ทำนายคลาสที่มีจำนวนมากที่สุดในใบนั้น</li></ol></div><div><h2>สมการหลัก</h2><div class="formula">Gini(S)    = 1 − Σ_c p_c²
 Entropy(S) = −Σ_c p_c log₂ p_c
 

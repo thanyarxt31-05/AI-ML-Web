@@ -1,4 +1,4 @@
-# ML Visual Lab
+# Visualize Machine Learning Algorithm
 
 เว็บจำลองการทำงานของอัลกอริทึม Machine Learning แบบโต้ตอบได้ 14 หน้า แต่ละหน้าเป็นไฟล์ HTML เดียวจบ (CSS และ JavaScript อยู่ในไฟล์) ไม่ต้องติดตั้งไลบรารีใด ๆ
 
