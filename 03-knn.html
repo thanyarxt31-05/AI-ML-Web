@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>k-Nearest Neighbors | ML Visual Lab</title><meta name="description" content="kNN ไม่มีการฝึกเลย มันจำข้อมูลทั้งหมดไว้ แล้วเวลาทำนายก็หาจุดที่ใกล้ที่สุด k จุดมาโหวต เลื่อนเมาส์บนกราฟเพื่อดูเพื่อนบ้านและผลโหวตของตำแหน่งนั้น">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box}
+:root{--paper:#F6F7F1;--grid:#E3E7DA;--ink:#18222F;--muted:#566170;--line:#C9D0C0;--blue:#1F5FBF;--rose:#C0265E;--gold:#D49A00;--green:#2E8B57;--violet:#6B3FA0;--white:#FFFFFF}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:'Anuphan',system-ui,sans-serif;color:var(--ink);background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;line-height:1.6;font-size:16px}
+.topnav,.hero,.lab,.explain,.pager,.index{max-width:1240px;margin:0 auto;padding-left:24px;padding-right:24px}
+.topnav{display:flex;gap:18px;align-items:center;padding-top:16px;padding-bottom:10px}
+.brand{font-weight:700;color:var(--ink);text-decoration:none;white-space:nowrap;font-size:17px}
+.pills{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 6px}
+.pills a{flex:none;min-width:34px;height:34px;display:grid;place-items:center;border:1.5px solid var(--line);border-radius:8px;background:var(--white);color:var(--ink);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:13px}
+.pills a:hover{border-color:var(--ink)}
+.pills a[aria-current]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.hero{padding-top:22px;padding-bottom:22px}
+.hero h1{font-size:clamp(38px,6.4vw,70px);line-height:1.02;margin:10px 0 6px;letter-spacing:-0.025em;font-weight:700}
+.hero .th{margin:0;color:var(--muted);font-size:20px;font-weight:500}
+.hero .lede{max-width:64ch;margin:14px 0 0;font-size:17px}
+.cat{display:inline-block;font-size:13px;padding:1px 11px;border-radius:999px;border:1.5px solid currentColor;font-weight:600;background:var(--white)}
+.cat-sup{color:var(--blue)}.cat-uns{color:#8A6100}.cat-dl{color:var(--rose)}.cat-rl{color:var(--green)}.cat-ens{color:var(--violet)}
+.lab{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;align-items:start;padding-bottom:36px}
+.plate{background:var(--white);border:1.5px solid var(--ink);border-radius:4px;box-shadow:7px 7px 0 var(--ink);position:relative;overflow:hidden}
+.plate canvas{display:block;width:100%;touch-action:none;cursor:crosshair}
+.hint{position:absolute;left:10px;bottom:8px;font-size:13px;color:var(--muted);background:rgba(255,255,255,.88);padding:1px 8px;border-radius:4px;pointer-events:none;max-width:calc(100% - 20px)}
+.subs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:24px}
+.sub{background:var(--white);border:1.5px solid var(--line);border-radius:4px;padding:10px 12px 12px;min-width:0}
+.sub.wide{grid-column:1/-1}
+.sub h3{margin:0 0 6px;font-size:14.5px;font-weight:600}
+.sub canvas{display:block;width:100%;height:150px}
+.sub pre{margin:0;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.panel{background:var(--white);border:1.5px solid var(--line);border-radius:4px;padding:18px 18px 14px;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow-y:auto}
+.panel fieldset{border:0;padding:0;margin:0 0 16px;min-width:0}
+.panel legend{font-weight:700;font-size:15.5px;margin-bottom:8px;padding:0}
+.ctl{display:block;margin:0 0 11px;font-size:14px}
+.ctl>span{display:flex;justify-content:space-between;gap:10px;margin-bottom:3px}
+output{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--blue);font-weight:600;white-space:nowrap}
+input[type=range]{width:100%;accent-color:var(--blue);margin:0}
+input[type=text]{width:100%;font:inherit;font-size:14px;padding:6px 8px;border:1.5px solid var(--line);border-radius:6px}
+select{width:100%;font:inherit;font-size:14px;padding:6px 8px;border:1.5px solid var(--line);border-radius:6px;background:#fff;color:var(--ink)}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin:0 0 10px;line-height:1.4}
+.chk input{accent-color:var(--blue);width:16px;height:16px;flex:none;margin-top:1px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 16px}
+button{font:inherit;font-size:14px;font-weight:600;padding:6px 13px;border-radius:6px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+button.primary{background:var(--ink);color:#fff}
+button:hover{transform:translate(-1px,-1px);box-shadow:2px 2px 0 var(--ink)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.readout{border-top:1.5px dashed var(--line);padding-top:12px;display:grid;gap:3px}
+.readout div{display:flex;justify-content:space-between;font-size:14px;gap:12px}
+.readout b{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:12.5px;text-align:right;word-break:break-all}
+.kgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 12px}
+.kgrid input{width:100%;font-family:'JetBrains Mono',monospace;font-size:14px;text-align:center;padding:6px 2px;border:1.5px solid var(--line);border-radius:6px}
+.explain{display:grid;grid-template-columns:1.15fr 1fr;gap:36px;padding-top:12px;padding-bottom:40px}
+.explain h2{font-size:23px;margin:0 0 12px}
+.steps{margin:0;padding-left:22px}.steps li{margin-bottom:9px;max-width:64ch}
+.formula{background:var(--white);border:1.5px solid var(--ink);border-radius:4px;padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.95;overflow-x:auto;white-space:pre}
+.note{color:var(--muted);font-size:14.5px;max-width:60ch}
+.pager{display:flex;justify-content:space-between;gap:16px;padding-bottom:48px;flex-wrap:wrap}
+.pager a{color:var(--ink);text-decoration:none;border-bottom:2px solid var(--ink);font-weight:600}
+.pager a:hover{color:var(--blue);border-color:var(--blue)}
+.thumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.thumbs canvas{height:auto;aspect-ratio:1;border:1px solid var(--line)}
+@media (max-width:960px){.lab{grid-template-columns:1fr}.panel{position:static;max-height:none}.explain{grid-template-columns:1fr}.thumbs{grid-template-columns:repeat(3,1fr)}}
+@media (prefers-reduced-motion:reduce){button{transition:none}button:hover{transform:none}}
+</style></head><body>
+<nav class="topnav" aria-label="อัลกอริทึมทั้งหมด"><a class="brand" href="index.html">ML Visual Lab</a><div class="pills"><a href="01-linear-regression.html" title="Linear Regression">1</a><a href="02-logistic-regression.html" title="Logistic Regression">2</a><a href="03-knn.html" title="k-Nearest Neighbors" aria-current="page">3</a><a href="04-decision-tree.html" title="Decision Tree">4</a><a href="05-random-forest.html" title="Random Forest">5</a><a href="06-svm.html" title="Support Vector Machine">6</a><a href="07-kmeans.html" title="K-Means">7</a><a href="08-mlp.html" title="MLP Neural Network">8</a><a href="09-cnn.html" title="CNN">9</a><a href="10-lstm.html" title="LSTM">10</a><a href="11-transformer.html" title="Transformer">11</a><a href="12-reinforcement-learning.html" title="Reinforcement Learning">12</a><a href="13-xgboost.html" title="XGBoost">13</a><a href="14-stacking.html" title="Stacking">14</a></div></nav>
+<header class="hero"><span class="cat cat-sup">Supervised learning</span><h1>k-Nearest Neighbors</h1><p class="th">เพื่อนบ้านใกล้ที่สุด k ตัว: ดูว่าคนรอบข้างเป็นใคร</p><p class="lede">kNN ไม่มีการฝึกเลย มันจำข้อมูลทั้งหมดไว้ แล้วเวลาทำนายก็หาจุดที่ใกล้ที่สุด k จุดมาโหวต เลื่อนเมาส์บนกราฟเพื่อดูเพื่อนบ้านและผลโหวตของตำแหน่งนั้น</p></header>
+<main class="lab"><section class="stage" aria-label="ภาพจำลอง"><div class="plate"><canvas id="cv" style="aspect-ratio:4/3"></canvas><div class="hint">เลื่อนเมาส์เพื่อดูเพื่อนบ้าน, คลิกเพื่อเพิ่มจุด</div></div>
+<div class="subs"><div class="sub"><h3>ผลโหวตที่ตำแหน่งเมาส์</h3><canvas id="vote"></canvas></div><div class="sub"><h3>ความแม่นยำ (leave-one-out) เมื่อเปลี่ยน k</h3><canvas id="kc"></canvas></div></div></section>
+<aside class="panel" aria-label="ปรับค่า"><fieldset><legend>ข้อมูล</legend><label class="ctl"><span>ชุดข้อมูล</span><select id="ds"><option value="blobs3" selected>สามกลุ่ม</option><option value="moons">พระจันทร์เสี้ยว</option><option value="circles">วงกลมซ้อน</option><option value="xor">XOR</option><option value="spiral">เกลียว</option></select></label><label class="ctl"><span>จำนวนจุด<output for="n"></output></span><input type="range" id="n" min="15" max="300" step="5" value="120"></label><label class="ctl"><span>สัญญาณรบกวน<output for="noise"></output></span><input type="range" id="noise" min="0" max="1" step="0.01" value="0.45"></label><label class="ctl"><span>คลิกเพิ่มจุดคลาส</span><select id="addc"><option value="0">น้ำเงิน</option><option value="1">ชมพู</option><option value="2">เหลือง</option></select></label><div class="btns"><button id="newdata" type="button">สุ่มข้อมูลใหม่</button></div></fieldset><fieldset><legend>โมเดล</legend><label class="ctl"><span>จำนวนเพื่อนบ้าน k<output for="k"></output></span><input type="range" id="k" min="1" max="41" step="1" value="7"></label><label class="ctl"><span>การวัดระยะทาง</span><select id="metric"><option value="euc">Euclidean (เส้นตรง)</option><option value="man">Manhattan (เดินตามบล็อก)</option><option value="che">Chebyshev (ระยะมากสุดต่อแกน)</option></select></label><label class="ctl"><span>การโหวต</span><select id="wt"><option value="uni">หนึ่งจุดหนึ่งเสียง</option><option value="dist">จุดใกล้ได้เสียงมากกว่า (1/d)</option></select></label><label class="chk"><input type="checkbox" id="showmap" checked><span>ระบายพื้นที่ตัดสินใจ</span></label></fieldset><div class="readout" id="readout" aria-live="polite"></div></aside></main>
+<section class="explain"><div><h2>ทำงานอย่างไร</h2><ol class="steps"><li>เก็บจุดข้อมูลฝึกทั้งหมดไว้ (ไม่มีขั้นตอนเรียนน้ำหนัก)</li><li>เมื่อมีจุดใหม่ วัดระยะทางจากจุดนั้นไปยังทุกจุดในข้อมูลฝึก</li><li>เลือก k จุดที่ใกล้ที่สุด วงที่วาดบนกราฟคือขอบเขตของเพื่อนบ้านกลุ่มนี้</li><li>ให้เพื่อนบ้านโหวต คลาสที่ได้เสียงมากที่สุดคือคำตอบ</li><li>k เล็กทำให้เส้นแบ่งหยักและไวต่อ noise ส่วน k ใหญ่ทำให้เรียบแต่อาจกลบรายละเอียด</li></ol></div><div><h2>สมการหลัก</h2><div class="formula">Euclidean  d = √((x₁−x₂)² + (y₁−y₂)²)
+Manhattan  d = |x₁−x₂| + |y₁−y₂|
+Chebyshev  d = max(|x₁−x₂|, |y₁−y₂|)
+
+ŷ = argmax_c Σ_{i∈N_k(x)} wᵢ · [yᵢ = c]
+wᵢ = 1  หรือ  wᵢ = 1/dᵢ</div><p class="note">กราฟด้านล่างขวาช่วยเลือก k ที่ดี: ทดสอบแต่ละจุดโดยไม่ให้จุดนั้นโหวตตัวเอง แล้วดูว่า k ไหนทายถูกมากที่สุด</p></div></section>
+<footer class="pager"><a href="02-logistic-regression.html">ก่อนหน้า: Logistic Regression</a><a href="04-decision-tree.html">ถัดไป: Decision Tree</a></footer>
+<script>
+const U=(()=>{
+const C={blue:'#1F5FBF',rose:'#C0265E',gold:'#D49A00',green:'#2E8B57',violet:'#6B3FA0',teal:'#0E8A8A',brown:'#8A5A2B',slate:'#4B5563',ink:'#18222F',muted:'#566170',grid:'#E3E7DA',line:'#C9D0C0'};
+const CLS=[C.blue,C.rose,C.gold,C.green,C.violet,C.teal,C.brown,C.slate];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function rgba(hex,a){const n=parseInt(hex.slice(1),16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}
+function rng(seed){let s=seed>>>0;return()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(r){let u=0;while(!u)u=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*r())}
+function setup(cv){const d=window.devicePixelRatio||1,b=cv.getBoundingClientRect();cv.width=Math.max(1,Math.round(b.width*d));cv.height=Math.max(1,Math.round(b.height*d));const x=cv.getContext('2d');x.setTransform(d,0,0,d,0,0);x.W=b.width;x.H=b.height;return x}
+function onResize(fn){let t,w=innerWidth;addEventListener('resize',()=>{if(innerWidth===w)return;w=innerWidth;clearTimeout(t);t=setTimeout(fn,120)});fn()}
+function view(ctx,x0=-1,x1=1,y0=-1,y1=1){return{px:x=>(x-x0)/(x1-x0)*ctx.W,py:y=>(1-(y-y0)/(y1-y0))*ctx.H,ix:p=>x0+p/ctx.W*(x1-x0),iy:p=>y0+(1-p/ctx.H)*(y1-y0),x0,x1,y0,y1}}
+function pos(e,cv){const b=cv.getBoundingClientRect();const t=e.touches?e.touches[0]||e.changedTouches[0]:e;return[t.clientX-b.left,t.clientY-b.top]}
+function data(kind,n,noise,seed,k=3){const r=rng(seed),P=[];
+ for(let i=0;i<n;i++){let x,y,c;
+  if(kind==='blobs'||kind==='blobs3'){const kk=kind==='blobs3'?3:k;c=i%kk;const a=c/kk*2*Math.PI+0.7,s=0.07+0.33*noise;x=0.48*Math.cos(a)+gauss(r)*s;y=0.48*Math.sin(a)+gauss(r)*s}
+  else if(kind==='moons'){c=i%2;const t=r()*Math.PI;let mx,my;if(!c){mx=Math.cos(t);my=Math.sin(t)}else{mx=1-Math.cos(t);my=0.5-Math.sin(t)}x=(mx-0.5)*0.55+gauss(r)*0.22*noise;y=(my-0.25)*0.8+gauss(r)*0.22*noise}
+  else if(kind==='circles'){c=i%2;const a=r()*2*Math.PI,rad=c?0.72:0.32;x=rad*Math.cos(a)+gauss(r)*0.18*noise;y=rad*Math.sin(a)+gauss(r)*0.18*noise}
+  else if(kind==='xor'){x=r()*1.7-0.85;y=r()*1.7-0.85;c=(x*y>0)?0:1;x+=gauss(r)*0.15*noise;y+=gauss(r)*0.15*noise}
+  else{c=i%2;const t=(Math.floor(i/2)/(n/2))*0.95+0.05;const a=t*3.2*Math.PI+c*Math.PI;x=t*0.85*Math.cos(a)+gauss(r)*0.12*noise;y=t*0.85*Math.sin(a)+gauss(r)*0.12*noise}
+  P.push({x,y,c})}
+ return P}
+function nclass(kind,k){return kind==='blobs3'?3:kind==='blobs'?k:2}
+function paint(ctx,v,fn,res=6){const cw=Math.ceil(ctx.W/res),ch=Math.ceil(ctx.H/res);const off=document.createElement('canvas');off.width=cw;off.height=ch;const oc=off.getContext('2d'),im=oc.createImageData(cw,ch),d=im.data;const rgb=CLS.map(h=>{const n=parseInt(h.slice(1),16);return[n>>16&255,n>>8&255,n&255]});for(let j=0;j<ch;j++)for(let i=0;i<cw;i++){const r=fn(v.ix((i+0.5)*res),v.iy((j+0.5)*res));const p=Math.max(0,Math.min(1,r[1])),a=0.05+0.34*p,c=rgb[r[0]],k=(j*cw+i)*4;d[k]=255+(c[0]-255)*a;d[k+1]=255+(c[1]-255)*a;d[k+2]=255+(c[2]-255)*a;d[k+3]=255}oc.putImageData(im,0,0);ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(off,0,0,cw*res,ch*res);ctx.restore()}
+function frame(ctx,v){ctx.save();ctx.strokeStyle=C.grid;ctx.lineWidth=1;const st=(v.x1-v.x0)>4?1:0.5;for(let x=Math.ceil(v.x0/st)*st;x<=v.x1;x+=st){ctx.beginPath();ctx.moveTo(v.px(x),0);ctx.lineTo(v.px(x),ctx.H);ctx.stroke()}for(let y=Math.ceil(v.y0/st)*st;y<=v.y1;y+=st){ctx.beginPath();ctx.moveTo(0,v.py(y));ctx.lineTo(ctx.W,v.py(y));ctx.stroke()}ctx.strokeStyle=C.line;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(v.px(0),0);ctx.lineTo(v.px(0),ctx.H);ctx.moveTo(0,v.py(0));ctx.lineTo(ctx.W,v.py(0));ctx.stroke();ctx.restore()}
+function dots(ctx,v,P,o={}){const r=o.r||4.6;for(const p of P){ctx.beginPath();ctx.arc(v.px(p.x),v.py(p.y),r,0,7);if(p.test||o.hollow){ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=CLS[p.c]}else{ctx.fillStyle=o.color||CLS[p.c];ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle='#fff'}ctx.stroke()}}
+function contour(ctx,v,f,level=0,res=7){const nx=Math.ceil(ctx.W/res)+1,ny=Math.ceil(ctx.H/res)+1,G=new Float32Array(nx*ny);for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)G[j*nx+i]=f(v.ix(i*res),v.iy(j*res))-level;ctx.beginPath();
+ for(let j=0;j<ny-1;j++)for(let i=0;i<nx-1;i++){const a=G[j*nx+i],b=G[j*nx+i+1],c=G[(j+1)*nx+i+1],d=G[(j+1)*nx+i],q=[],X=i*res,Y=j*res;
+  const e=(p,s,x1,y1,x2,y2)=>{if((p>0)!==(s>0)){const t=p/(p-s);q.push([x1+(x2-x1)*t,y1+(y2-y1)*t])}};
+  e(a,b,X,Y,X+res,Y);e(b,c,X+res,Y,X+res,Y+res);e(c,d,X+res,Y+res,X,Y+res);e(d,a,X,Y+res,X,Y);
+  if(q.length>=2){ctx.moveTo(q[0][0],q[0][1]);ctx.lineTo(q[1][0],q[1][1])}if(q.length===4){ctx.moveTo(q[2][0],q[2][1]);ctx.lineTo(q[3][0],q[3][1])}}
+ ctx.stroke()}
+function fmt(n,d=3){if(n===undefined||n===null||Number.isNaN(n))return'-';if(!isFinite(n))return n>0?'∞':'-∞';const a=Math.abs(n);return a>=1e4?n.toExponential(2):a>=100?n.toFixed(1):n.toFixed(d)}
+function chart(ctx,series,o={}){ctx.clearRect(0,0,ctx.W,ctx.H);const all=series.flatMap(s=>s.data).filter(isFinite);const pad=8,top=20;
+ ctx.fillStyle=C.muted;ctx.font='11px "JetBrains Mono",monospace';
+ if(!all.length){ctx.fillText('ยังไม่มีข้อมูล',pad,top);return}
+ let lo=o.ymin??Math.min(...all),hi=o.ymax??Math.max(...all);if(hi-lo<1e-9){hi+=0.5;lo-=0.5}
+ const n=o.n||Math.max(...series.map(s=>s.data.length));const X=i=>pad+i/Math.max(1,n-1)*(ctx.W-2*pad),Y=y=>ctx.H-pad-(y-lo)/(hi-lo)*(ctx.H-pad-top);
+ ctx.strokeStyle=C.grid;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,Y(lo));ctx.lineTo(ctx.W-pad,Y(lo));ctx.stroke();
+ if(lo<0&&hi>0){ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(pad,Y(0));ctx.lineTo(ctx.W-pad,Y(0));ctx.stroke();ctx.setLineDash([])}
+ for(const s of series){ctx.beginPath();let st=false;s.data.forEach((y,i)=>{if(!isFinite(y))return;const yy=Y(Math.max(lo,Math.min(hi,y)));st?ctx.lineTo(X(i),yy):ctx.moveTo(X(i),yy);st=true});ctx.strokeStyle=s.color;ctx.lineWidth=s.w||1.8;ctx.setLineDash(s.dash||[]);ctx.stroke();ctx.setLineDash([])}
+ if(o.marker!==undefined){ctx.strokeStyle=C.ink;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X(o.marker),top-4);ctx.lineTo(X(o.marker),ctx.H-pad);ctx.stroke()}
+ ctx.fillStyle=C.muted;ctx.fillText('max '+fmt(hi),pad,13);ctx.textAlign='right';ctx.fillText(series.filter(s=>s.name).map(s=>s.name).join('  '),ctx.W-pad,13);ctx.textAlign='left';
+ series.forEach((s,k)=>{if(!s.name)return})}
+function bars(ctx,vals,o={}){ctx.clearRect(0,0,ctx.W,ctx.H);const n=vals.length;if(!n)return;const top=18,bot=o.labels?18:6;let hi=o.ymax??Math.max(...vals.map(Math.abs),1e-9);const lo=o.ymin??Math.min(0,...vals);if(o.ymin===undefined&&lo<0)hi=Math.max(hi,-lo);const bw=(ctx.W-8)/n;const Y=v=>top+(hi-v)/(hi-lo)*(ctx.H-top-bot);
+ for(let i=0;i<n;i++){const v=vals[i],y0=Y(0),y1=Y(v);ctx.fillStyle=o.colors?o.colors[i%o.colors.length]:(v>=0?C.blue:C.rose);ctx.globalAlpha=(o.hl===undefined||o.hl===i)?1:0.35;ctx.fillRect(4+i*bw+bw*0.12,Math.min(y0,y1),bw*0.76,Math.max(1,Math.abs(y1-y0)));ctx.globalAlpha=1;
+  ctx.font='11px "JetBrains Mono",monospace';ctx.textAlign='center';ctx.fillStyle=C.ink;if(o.labels)ctx.fillText(o.labels[i],4+i*bw+bw/2,ctx.H-4);if(o.values&&bw>26)ctx.fillText(fmt(v,2),4+i*bw+bw/2,Math.min(y0,y1)-4)}
+ ctx.textAlign='left'}
+function ctl(id,cb,f){const el=document.getElementById(id);const out=document.querySelector(`output[for="${id}"]`);const get=()=>{if(el.type==='checkbox')return el.checked;const v=el.value;if(el.type==='text')return v;return(v.trim()!==''&&!isNaN(v))?parseFloat(v):v};
+ const show=()=>{if(out)out.textContent=f?f(get()):get()};el.addEventListener(el.type==='range'||el.type==='text'?'input':'change',()=>{show();cb&&cb(get())});show();return get}
+function readout(rows){document.getElementById('readout').innerHTML=Object.entries(rows).map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}
+function loop(step){let on=false;const f=()=>{if(!on)return;step();requestAnimationFrame(f)};return{start(){if(!on){on=true;requestAnimationFrame(f)}},stop(){on=false},get on(){return on}}}
+function playBtn(id,lp,a='เริ่ม',b='หยุดชั่วคราว'){const el=document.getElementById(id);const sync=()=>el.textContent=lp.on?b:a;el.onclick=()=>{lp.on?lp.stop():lp.start();sync()};sync();return sync}
+function debounce(fn,ms=120){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}}
+function solve(A,b){const n=b.length,M=A.map((r,i)=>[...r,b[i]]);for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;[M[c],M[p]]=[M[p],M[c]];if(Math.abs(M[c][c])<1e-12)continue;for(let r=0;r<n;r++){if(r===c)continue;const f=M[r][c]/M[c][c];for(let k=c;k<=n;k++)M[r][k]-=f*M[c][k]}}return M.map((r,i)=>Math.abs(r[i])<1e-12?0:r[n]/r[i])}
+const sigmoid=z=>1/(1+Math.exp(-z));
+function split(P,ratio,seed){const r=rng(seed+99);P.forEach(p=>p.test=r()<ratio);return P}
+function acc(P,pred){if(!P.length)return NaN;let k=0;for(const p of P)if(pred(p)===p.c)k++;return k/P.length}
+const pct=a=>isNaN(a)?'-':(a*100).toFixed(1)+'%';
+return{C,CLS,reduce,rgba,rng,gauss,setup,onResize,view,pos,data,nclass,paint,frame,dots,contour,fmt,chart,bars,ctl,readout,loop,playBtn,debounce,solve,sigmoid,split,acc,pct}})();
+
+
+const cv=document.getElementById('cv'),vcv=document.getElementById('vote'),kcv=document.getElementById('kc');
+let ctx,vctx,kctx,v,P=[],seed=11,img=null,mouse=null,kcurve=[];
+const ds=U.ctl('ds',gen),n=U.ctl('n',gen),noise=U.ctl('noise',gen,x=>x.toFixed(2)),addc=U.ctl('addc'),k=U.ctl('k',rebuild),metric=U.ctl('metric',rebuild),wt=U.ctl('wt',rebuild),showmap=U.ctl('showmap',rebuild);
+const rb=U.debounce(()=>{curveK();overlay()},80);
+function gen(){P=U.data(ds(),n(),noise(),seed,3);rebuild()}
+function rebuild(){base();overlay();rb()}
+const nc=()=>Math.max(U.nclass(ds(),3),1+Math.max(0,...P.map(p=>p.c)));
+function dist(ax,ay,bx,by){const dx=Math.abs(ax-bx),dy=Math.abs(ay-by);const m=metric();return m==='euc'?Math.hypot(dx,dy):m==='man'?dx+dy:Math.max(dx,dy)}
+function knn(x,y,K,skip=-1){const best=[];for(let i=0;i<P.length;i++){if(i===skip)continue;const d=dist(x,y,P[i].x,P[i].y);if(best.length<K||d<best[best.length-1].d){let j=best.length;best.push({d,i});while(j>0&&best[j-1].d>d){best[j]=best[j-1];j--}best[j]={d,i};if(best.length>K)best.pop()}}return best}
+function vote(nb){const c=new Array(nc()).fill(0);for(const b of nb)c[P[b.i].c]+=wt()==='dist'?1/(b.d+1e-3):1;return c}
+function predict(x,y){const c=vote(knn(x,y,k()));const s=c.reduce((a,b)=>a+b,0)||1;let m=0;for(let i=1;i<c.length;i++)if(c[i]>c[m])m=i;return[m,c[m]/s]}
+function curveK(){kcurve=[];if(P.length<3)return;for(let K=1;K<=41;K+=2){let ok=0;for(let i=0;i<P.length;i++){const c=vote(knn(P[i].x,P[i].y,K,i));let m=0;for(let j=1;j<c.length;j++)if(c[j]>c[m])m=j;if(m===P[i].c)ok++}kcurve.push(ok/P.length)}}
+function base(){if(!ctx)return;ctx.clearRect(0,0,ctx.W,ctx.H);if(showmap()&&P.length){const m=nc();U.paint(ctx,v,(x,y)=>{const r=predict(x,y);return[r[0],(r[1]-1/m)/(1-1/m)]},7)}U.frame(ctx,v);U.dots(ctx,v,P);img=ctx.getImageData(0,0,cv.width,cv.height)}
+function overlay(){if(!ctx||!img)return;ctx.putImageData(img,0,0);let votes=null;
+ if(mouse&&P.length){const[mx,my]=mouse,x=v.ix(mx),y=v.iy(my),nb=knn(x,y,k());votes=vote(nb);const R=nb[nb.length-1].d;
+  ctx.strokeStyle=U.C.ink;ctx.lineWidth=1.5;ctx.setLineDash([5,4]);ctx.beginPath();const rx=v.px(x+R)-mx,ry=my-v.py(y+R),m=metric();
+  if(m==='euc')ctx.ellipse(mx,my,rx,ry,0,0,7);else if(m==='che')ctx.rect(mx-rx,my-ry,2*rx,2*ry);else{ctx.moveTo(mx,my-ry);ctx.lineTo(mx+rx,my);ctx.lineTo(mx,my+ry);ctx.lineTo(mx-rx,my);ctx.closePath()}ctx.stroke();ctx.setLineDash([]);
+  for(const b of nb){const p=P[b.i];ctx.beginPath();ctx.moveTo(mx,my);ctx.lineTo(v.px(p.x),v.py(p.y));ctx.strokeStyle=U.rgba(U.CLS[p.c],0.85);ctx.lineWidth=1.6;ctx.stroke();ctx.beginPath();ctx.arc(v.px(p.x),v.py(p.y),7.5,0,7);ctx.strokeStyle=U.C.ink;ctx.lineWidth=1.5;ctx.stroke()}
+  const pr=predict(x,y);ctx.beginPath();ctx.arc(mx,my,8,0,7);ctx.fillStyle=U.CLS[pr[0]];ctx.fill();ctx.lineWidth=3;ctx.strokeStyle=U.C.ink;ctx.stroke()}
+ if(vctx){const c=votes||new Array(nc()).fill(0);U.bars(vctx,c,{colors:U.CLS,labels:c.map((_,i)=>['น้ำเงิน','ชมพู','เหลือง','เขียว'][i]),values:true,ymin:0})}
+ if(kctx){U.chart(kctx,[{data:kcurve,color:U.C.violet}],{ymin:Math.min(...kcurve,1)-0.05,ymax:1,marker:Math.floor((k()-1)/2)});kctx.fillStyle=U.C.muted;kctx.fillText('k = 1',8,kctx.H-12);kctx.textAlign='right';kctx.fillText('k = 41',kctx.W-8,kctx.H-12);kctx.textAlign='left'}
+ const kc=kcurve.length?kcurve.indexOf(Math.max(...kcurve))*2+1:'-';
+ U.readout({'จำนวนจุดฝึก':P.length,'k ปัจจุบัน':k(),'ความแม่นยำ LOO ที่ k นี้':U.pct(kcurve[Math.floor((k()-1)/2)]),'k ที่ดีที่สุด (เลขคี่)':kc,'โหวตที่เมาส์':votes?votes.map(x=>x.toFixed(1)).join(' / '):'เลื่อนเมาส์บนกราฟ'})}
+cv.addEventListener('pointermove',e=>{mouse=U.pos(e,cv);overlay()});cv.addEventListener('pointerleave',()=>{mouse=null;overlay()});
+cv.addEventListener('pointerdown',e=>{const[x,y]=U.pos(e,cv);P.push({x:v.ix(x),y:v.iy(y),c:+addc()});rebuild()});
+document.getElementById('newdata').onclick=()=>{seed++;gen()};
+U.onResize(()=>{ctx=U.setup(cv);vctx=U.setup(vcv);kctx=U.setup(kcv);v=U.view(ctx,-1.33,1.33,-1,1);base();overlay()});
+gen();
+
+</script></body></html>

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Transformer | ML Visual Lab</title><meta name="description" content="Transformer ไม่อ่านทีละคำแบบ LSTM แต่ให้ทุกคำถาม (Query) คำอื่นทุกคำพร้อมกัน แล้วดึงข้อมูล (Value) จากคำที่ตอบตรงที่สุด (Key) ชี้ที่คำทางซ้ายเพื่อดูว่ามันให้ความสนใจคำไหน รองรับภาษาไทย (ตัดคำอัตโนมัติ)">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box}
+:root{--paper:#F6F7F1;--grid:#E3E7DA;--ink:#18222F;--muted:#566170;--line:#C9D0C0;--blue:#1F5FBF;--rose:#C0265E;--gold:#D49A00;--green:#2E8B57;--violet:#6B3FA0;--white:#FFFFFF}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:'Anuphan',system-ui,sans-serif;color:var(--ink);background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;line-height:1.6;font-size:16px}
+.topnav,.hero,.lab,.explain,.pager,.index{max-width:1240px;margin:0 auto;padding-left:24px;padding-right:24px}
+.topnav{display:flex;gap:18px;align-items:center;padding-top:16px;padding-bottom:10px}
+.brand{font-weight:700;color:var(--ink);text-decoration:none;white-space:nowrap;font-size:17px}
+.pills{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 6px}
+.pills a{flex:none;min-width:34px;height:34px;display:grid;place-items:center;border:1.5px solid var(--line);border-radius:8px;background:var(--white);color:var(--ink);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:13px}
+.pills a:hover{border-color:var(--ink)}
+.pills a[aria-current]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.hero{padding-top:22px;padding-bottom:22px}
+.hero h1{font-size:clamp(38px,6.4vw,70px);line-height:1.02;margin:10px 0 6px;letter-spacing:-0.025em;font-weight:700}
+.hero .th{margin:0;color:var(--muted);font-size:20px;font-weight:500}
+.hero .lede{max-width:64ch;margin:14px 0 0;font-size:17px}
+.cat{display:inline-block;font-size:13px;padding:1px 11px;border-radius:999px;border:1.5px solid currentColor;font-weight:600;background:var(--white)}
+.cat-sup{color:var(--blue)}.cat-uns{color:#8A6100}.cat-dl{color:var(--rose)}.cat-rl{color:var(--green)}.cat-ens{color:var(--violet)}
+.lab{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;align-items:start;padding-bottom:36px}
+.plate{background:var(--white);border:1.5px solid var(--ink);border-radius:4px;box-shadow:7px 7px 0 var(--ink);position:relative;overflow:hidden}
+.plate canvas{display:block;width:100%;touch-action:none;cursor:crosshair}
+.hint{position:absolute;left:10px;bottom:8px;font-size:13px;color:var(--muted);background:rgba(255,255,255,.88);padding:1px 8px;border-radius:4px;pointer-events:none;max-width:calc(100% - 20px)}
+.subs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:24px}
+.sub{background:var(--white);border:1.5px solid var(--line);border-radius:4px;padding:10px 12px 12px;min-width:0}
+.sub.wide{grid-column:1/-1}
+.sub h3{margin:0 0 6px;font-size:14.5px;font-weight:600}
+.sub canvas{display:block;width:100%;height:150px}
+.sub pre{margin:0;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.panel{background:var(--white);border:1.5px solid var(--line);border-radius:4px;padding:18px 18px 14px;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow-y:auto}
+.panel fieldset{border:0;padding:0;margin:0 0 16px;min-width:0}
+.panel legend{font-weight:700;font-size:15.5px;margin-bottom:8px;padding:0}
+.ctl{display:block;margin:0 0 11px;font-size:14px}
+.ctl>span{display:flex;justify-content:space-between;gap:10px;margin-bottom:3px}
+output{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--blue);font-weight:600;white-space:nowrap}
+input[type=range]{width:100%;accent-color:var(--blue);margin:0}
+input[type=text]{width:100%;font:inherit;font-size:14px;padding:6px 8px;border:1.5px solid var(--line);border-radius:6px}
+select{width:100%;font:inherit;font-size:14px;padding:6px 8px;border:1.5px solid var(--line);border-radius:6px;background:#fff;color:var(--ink)}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin:0 0 10px;line-height:1.4}
+.chk input{accent-color:var(--blue);width:16px;height:16px;flex:none;margin-top:1px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 16px}
+button{font:inherit;font-size:14px;font-weight:600;padding:6px 13px;border-radius:6px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+button.primary{background:var(--ink);color:#fff}
+button:hover{transform:translate(-1px,-1px);box-shadow:2px 2px 0 var(--ink)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.readout{border-top:1.5px dashed var(--line);padding-top:12px;display:grid;gap:3px}
+.readout div{display:flex;justify-content:space-between;font-size:14px;gap:12px}
+.readout b{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:12.5px;text-align:right;word-break:break-all}
+.kgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 12px}
+.kgrid input{width:100%;font-family:'JetBrains Mono',monospace;font-size:14px;text-align:center;padding:6px 2px;border:1.5px solid var(--line);border-radius:6px}
+.explain{display:grid;grid-template-columns:1.15fr 1fr;gap:36px;padding-top:12px;padding-bottom:40px}
+.explain h2{font-size:23px;margin:0 0 12px}
+.steps{margin:0;padding-left:22px}.steps li{margin-bottom:9px;max-width:64ch}
+.formula{background:var(--white);border:1.5px solid var(--ink);border-radius:4px;padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.95;overflow-x:auto;white-space:pre}
+.note{color:var(--muted);font-size:14.5px;max-width:60ch}
+.pager{display:flex;justify-content:space-between;gap:16px;padding-bottom:48px;flex-wrap:wrap}
+.pager a{color:var(--ink);text-decoration:none;border-bottom:2px solid var(--ink);font-weight:600}
+.pager a:hover{color:var(--blue);border-color:var(--blue)}
+.thumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.thumbs canvas{height:auto;aspect-ratio:1;border:1px solid var(--line)}
+@media (max-width:960px){.lab{grid-template-columns:1fr}.panel{position:static;max-height:none}.explain{grid-template-columns:1fr}.thumbs{grid-template-columns:repeat(3,1fr)}}
+@media (prefers-reduced-motion:reduce){button{transition:none}button:hover{transform:none}}
+</style></head><body>
+<nav class="topnav" aria-label="อัลกอริทึมทั้งหมด"><a class="brand" href="index.html">ML Visual Lab</a><div class="pills"><a href="01-linear-regression.html" title="Linear Regression">1</a><a href="02-logistic-regression.html" title="Logistic Regression">2</a><a href="03-knn.html" title="k-Nearest Neighbors">3</a><a href="04-decision-tree.html" title="Decision Tree">4</a><a href="05-random-forest.html" title="Random Forest">5</a><a href="06-svm.html" title="Support Vector Machine">6</a><a href="07-kmeans.html" title="K-Means">7</a><a href="08-mlp.html" title="MLP Neural Network">8</a><a href="09-cnn.html" title="CNN">9</a><a href="10-lstm.html" title="LSTM">10</a><a href="11-transformer.html" title="Transformer" aria-current="page">11</a><a href="12-reinforcement-learning.html" title="Reinforcement Learning">12</a><a href="13-xgboost.html" title="XGBoost">13</a><a href="14-stacking.html" title="Stacking">14</a></div></nav>
+<header class="hero"><span class="cat cat-dl">Deep learning (supervised)</span><h1>Transformer</h1><p class="th">ทรานส์ฟอร์เมอร์: ให้ทุกคำมองหาคำอื่นที่เกี่ยวข้องผ่าน self-attention</p><p class="lede">Transformer ไม่อ่านทีละคำแบบ LSTM แต่ให้ทุกคำถาม (Query) คำอื่นทุกคำพร้อมกัน แล้วดึงข้อมูล (Value) จากคำที่ตอบตรงที่สุด (Key) ชี้ที่คำทางซ้ายเพื่อดูว่ามันให้ความสนใจคำไหน รองรับภาษาไทย (ตัดคำอัตโนมัติ)</p></header>
+<main class="lab"><section class="stage" aria-label="ภาพจำลอง"><div class="plate"><canvas id="cv" style="aspect-ratio:4/3"></canvas><div class="hint">ชี้หรือแตะคำทางซ้ายเพื่อเลือก Query</div></div>
+<div class="subs"><div class="sub"><h3>Attention matrix (แถว = Query, คอลัมน์ = Key)</h3><canvas id="mat" style="height:260px"></canvas></div><div class="sub"><h3>Positional encoding (แถว = ตำแหน่ง, คอลัมน์ = มิติ)</h3><canvas id="pe" style="height:260px"></canvas></div></div></section>
+<aside class="panel" aria-label="ปรับค่า"><fieldset><legend>ประโยค</legend><label class="ctl"><span>พิมพ์ประโยค</span><input type="text" id="text" value="แมว ตัว นั้น นอน บน เสื่อ เพราะ มัน เหนื่อย"></label><label class="ctl"><span>ตัวอย่าง</span><select id="ex"><option value="">เลือกตัวอย่าง</option><option value="แมว ตัว นั้น นอน บน เสื่อ เพราะ มัน เหนื่อย">แมวนอนบนเสื่อ</option><option value="the cat sat on the mat because it was tired">The cat sat on the mat</option><option value="ฉันชอบกินข้าวผัดกุ้งที่ร้านข้างบ้านทุกวันเสาร์">ไทยไม่เว้นวรรค (ตัดคำอัตโนมัติ)</option><option value="to be or not to be that is the question">To be or not to be</option></select></label></fieldset><fieldset><legend>Self-attention</legend><label class="ctl"><span>Query และ Key มาจากไหน</span><select id="mode"><option value="learned">คูณน้ำหนักสุ่ม W_Q, W_K (ยังไม่ได้ฝึก)</option><option value="ident">ใช้ embedding ตรง ๆ (Q = K = X)</option></select></label><label class="ctl"><span>จำนวน head<output for="heads"></output></span><input type="range" id="heads" min="1" max="4" step="1" value="2"></label><label class="ctl"><span>head ที่แสดง (0 = เฉลี่ยทุก head)<output for="hv"></output></span><input type="range" id="hv" min="0" max="4" step="1" value="1"></label><label class="ctl"><span>Temperature (หาร score ก่อน softmax)<output for="temp"></output></span><input type="range" id="temp" min="0.1" max="3" step="0.05" value="1"></label><label class="ctl"><span>น้ำหนักของ positional encoding<output for="pew"></output></span><input type="range" id="pew" min="0" max="2" step="0.05" value="0.6"></label><label class="chk"><input type="checkbox" id="causal"><span>Causal mask (แบบ GPT: มองเห็นแค่คำก่อนหน้า)</span></label><label class="ctl"><span>Seed ของน้ำหนัก<output for="wseed"></output></span><input type="range" id="wseed" min="1" max="60" step="1" value="7"></label></fieldset><div class="readout" id="readout" aria-live="polite"></div></aside></main>
+<section class="explain"><div><h2>ทำงานอย่างไร</h2><ol class="steps"><li>ตัดประโยคเป็นโทเคน แล้วแปลงแต่ละโทเคนเป็นเวกเตอร์ embedding (ที่นี่ 16 มิติ สุ่มจากตัวโทเคน คำเดียวกันจึงได้เวกเตอร์เดียวกัน)</li><li>บวก positional encoding (คลื่น sin/cos ความถี่ต่างกัน) ให้โมเดลรู้ลำดับคำ</li><li>แต่ละ head คูณ X ด้วย W_Q, W_K, W_V ได้ Query, Key, Value</li><li>คะแนนความสนใจ = Q·Kᵀ หาร √d แล้วผ่าน softmax ให้ทุกแถวรวมเป็น 1</li><li>ผลลัพธ์ของแต่ละคำคือค่าเฉลี่ยถ่วงน้ำหนักของ Value ทุกคำ แล้วรวมหลาย head เข้าด้วยกัน</li></ol></div><div><h2>สมการหลัก</h2><div class="formula">Attention(Q,K,V) = softmax(QKᵀ / (√d_k · τ)) V
+
+Q = XW_Q,  K = XW_K,  V = XW_V
+
+PE(pos, 2i)   = sin(pos / 10000^(2i/d))
+PE(pos, 2i+1) = cos(pos / 10000^(2i/d))
+
+Causal mask: score[i,j] = −∞ เมื่อ j > i</div><p class="note">น้ำหนักในหน้านี้ยังไม่ได้ฝึก จึงแสดงกลไกการคำนวณ ไม่ใช่ความหมายภาษา ในโมเดลที่ฝึกแล้ว คำว่า "มัน" จะสนใจ "แมว" อย่างชัดเจน ลองโหมด Q = K = X แล้วตั้ง positional encoding เป็น 0 จะเห็นว่าคำที่ซ้ำกันสนใจกันเอง</p></div></section>
+<footer class="pager"><a href="10-lstm.html">ก่อนหน้า: LSTM</a><a href="12-reinforcement-learning.html">ถัดไป: Reinforcement Learning</a></footer>
+<script>
+const U=(()=>{
+const C={blue:'#1F5FBF',rose:'#C0265E',gold:'#D49A00',green:'#2E8B57',violet:'#6B3FA0',teal:'#0E8A8A',brown:'#8A5A2B',slate:'#4B5563',ink:'#18222F',muted:'#566170',grid:'#E3E7DA',line:'#C9D0C0'};
+const CLS=[C.blue,C.rose,C.gold,C.green,C.violet,C.teal,C.brown,C.slate];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function rgba(hex,a){const n=parseInt(hex.slice(1),16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}
+function rng(seed){let s=seed>>>0;return()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(r){let u=0;while(!u)u=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*r())}
+function setup(cv){const d=window.devicePixelRatio||1,b=cv.getBoundingClientRect();cv.width=Math.max(1,Math.round(b.width*d));cv.height=Math.max(1,Math.round(b.height*d));const x=cv.getContext('2d');x.setTransform(d,0,0,d,0,0);x.W=b.width;x.H=b.height;return x}
+function onResize(fn){let t,w=innerWidth;addEventListener('resize',()=>{if(innerWidth===w)return;w=innerWidth;clearTimeout(t);t=setTimeout(fn,120)});fn()}
+function view(ctx,x0=-1,x1=1,y0=-1,y1=1){return{px:x=>(x-x0)/(x1-x0)*ctx.W,py:y=>(1-(y-y0)/(y1-y0))*ctx.H,ix:p=>x0+p/ctx.W*(x1-x0),iy:p=>y0+(1-p/ctx.H)*(y1-y0),x0,x1,y0,y1}}
+function pos(e,cv){const b=cv.getBoundingClientRect();const t=e.touches?e.touches[0]||e.changedTouches[0]:e;return[t.clientX-b.left,t.clientY-b.top]}
+function data(kind,n,noise,seed,k=3){const r=rng(seed),P=[];
+ for(let i=0;i<n;i++){let x,y,c;
+  if(kind==='blobs'||kind==='blobs3'){const kk=kind==='blobs3'?3:k;c=i%kk;const a=c/kk*2*Math.PI+0.7,s=0.07+0.33*noise;x=0.48*Math.cos(a)+gauss(r)*s;y=0.48*Math.sin(a)+gauss(r)*s}
+  else if(kind==='moons'){c=i%2;const t=r()*Math.PI;let mx,my;if(!c){mx=Math.cos(t);my=Math.sin(t)}else{mx=1-Math.cos(t);my=0.5-Math.sin(t)}x=(mx-0.5)*0.55+gauss(r)*0.22*noise;y=(my-0.25)*0.8+gauss(r)*0.22*noise}
+  else if(kind==='circles'){c=i%2;const a=r()*2*Math.PI,rad=c?0.72:0.32;x=rad*Math.cos(a)+gauss(r)*0.18*noise;y=rad*Math.sin(a)+gauss(r)*0.18*noise}
+  else if(kind==='xor'){x=r()*1.7-0.85;y=r()*1.7-0.85;c=(x*y>0)?0:1;x+=gauss(r)*0.15*noise;y+=gauss(r)*0.15*noise}
+  else{c=i%2;const t=(Math.floor(i/2)/(n/2))*0.95+0.05;const a=t*3.2*Math.PI+c*Math.PI;x=t*0.85*Math.cos(a)+gauss(r)*0.12*noise;y=t*0.85*Math.sin(a)+gauss(r)*0.12*noise}
+  P.push({x,y,c})}
+ return P}
+function nclass(kind,k){return kind==='blobs3'?3:kind==='blobs'?k:2}
+function paint(ctx,v,fn,res=6){const cw=Math.ceil(ctx.W/res),ch=Math.ceil(ctx.H/res);const off=document.createElement('canvas');off.width=cw;off.height=ch;const oc=off.getContext('2d'),im=oc.createImageData(cw,ch),d=im.data;const rgb=CLS.map(h=>{const n=parseInt(h.slice(1),16);return[n>>16&255,n>>8&255,n&255]});for(let j=0;j<ch;j++)for(let i=0;i<cw;i++){const r=fn(v.ix((i+0.5)*res),v.iy((j+0.5)*res));const p=Math.max(0,Math.min(1,r[1])),a=0.05+0.34*p,c=rgb[r[0]],k=(j*cw+i)*4;d[k]=255+(c[0]-255)*a;d[k+1]=255+(c[1]-255)*a;d[k+2]=255+(c[2]-255)*a;d[k+3]=255}oc.putImageData(im,0,0);ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(off,0,0,cw*res,ch*res);ctx.restore()}
+function frame(ctx,v){ctx.save();ctx.strokeStyle=C.grid;ctx.lineWidth=1;const st=(v.x1-v.x0)>4?1:0.5;for(let x=Math.ceil(v.x0/st)*st;x<=v.x1;x+=st){ctx.beginPath();ctx.moveTo(v.px(x),0);ctx.lineTo(v.px(x),ctx.H);ctx.stroke()}for(let y=Math.ceil(v.y0/st)*st;y<=v.y1;y+=st){ctx.beginPath();ctx.moveTo(0,v.py(y));ctx.lineTo(ctx.W,v.py(y));ctx.stroke()}ctx.strokeStyle=C.line;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(v.px(0),0);ctx.lineTo(v.px(0),ctx.H);ctx.moveTo(0,v.py(0));ctx.lineTo(ctx.W,v.py(0));ctx.stroke();ctx.restore()}
+function dots(ctx,v,P,o={}){const r=o.r||4.6;for(const p of P){ctx.beginPath();ctx.arc(v.px(p.x),v.py(p.y),r,0,7);if(p.test||o.hollow){ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=CLS[p.c]}else{ctx.fillStyle=o.color||CLS[p.c];ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle='#fff'}ctx.stroke()}}
+function contour(ctx,v,f,level=0,res=7){const nx=Math.ceil(ctx.W/res)+1,ny=Math.ceil(ctx.H/res)+1,G=new Float32Array(nx*ny);for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)G[j*nx+i]=f(v.ix(i*res),v.iy(j*res))-level;ctx.beginPath();
+ for(let j=0;j<ny-1;j++)for(let i=0;i<nx-1;i++){const a=G[j*nx+i],b=G[j*nx+i+1],c=G[(j+1)*nx+i+1],d=G[(j+1)*nx+i],q=[],X=i*res,Y=j*res;
+  const e=(p,s,x1,y1,x2,y2)=>{if((p>0)!==(s>0)){const t=p/(p-s);q.push([x1+(x2-x1)*t,y1+(y2-y1)*t])}};
+  e(a,b,X,Y,X+res,Y);e(b,c,X+res,Y,X+res,Y+res);e(c,d,X+res,Y+res,X,Y+res);e(d,a,X,Y+res,X,Y);
+  if(q.length>=2){ctx.moveTo(q[0][0],q[0][1]);ctx.lineTo(q[1][0],q[1][1])}if(q.length===4){ctx.moveTo(q[2][0],q[2][1]);ctx.lineTo(q[3][0],q[3][1])}}
+ ctx.stroke()}
+function fmt(n,d=3){if(n===undefined||n===null||Number.isNaN(n))return'-';if(!isFinite(n))return n>0?'∞':'-∞';const a=Math.abs(n);return a>=1e4?n.toExponential(2):a>=100?n.toFixed(1):n.toFixed(d)}
+function chart(ctx,series,o={}){ctx.clearRect(0,0,ctx.W,ctx.H);const all=series.flatMap(s=>s.data).filter(isFinite);const pad=8,top=20;
+ ctx.fillStyle=C.muted;ctx.font='11px "JetBrains Mono",monospace';
+ if(!all.length){ctx.fillText('ยังไม่มีข้อมูล',pad,top);return}
+ let lo=o.ymin??Math.min(...all),hi=o.ymax??Math.max(...all);if(hi-lo<1e-9){hi+=0.5;lo-=0.5}
+ const n=o.n||Math.max(...series.map(s=>s.data.length));const X=i=>pad+i/Math.max(1,n-1)*(ctx.W-2*pad),Y=y=>ctx.H-pad-(y-lo)/(hi-lo)*(ctx.H-pad-top);
+ ctx.strokeStyle=C.grid;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,Y(lo));ctx.lineTo(ctx.W-pad,Y(lo));ctx.stroke();
+ if(lo<0&&hi>0){ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(pad,Y(0));ctx.lineTo(ctx.W-pad,Y(0));ctx.stroke();ctx.setLineDash([])}
+ for(const s of series){ctx.beginPath();let st=false;s.data.forEach((y,i)=>{if(!isFinite(y))return;const yy=Y(Math.max(lo,Math.min(hi,y)));st?ctx.lineTo(X(i),yy):ctx.moveTo(X(i),yy);st=true});ctx.strokeStyle=s.color;ctx.lineWidth=s.w||1.8;ctx.setLineDash(s.dash||[]);ctx.stroke();ctx.setLineDash([])}
+ if(o.marker!==undefined){ctx.strokeStyle=C.ink;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X(o.marker),top-4);ctx.lineTo(X(o.marker),ctx.H-pad);ctx.stroke()}
+ ctx.fillStyle=C.muted;ctx.fillText('max '+fmt(hi),pad,13);ctx.textAlign='right';ctx.fillText(series.filter(s=>s.name).map(s=>s.name).join('  '),ctx.W-pad,13);ctx.textAlign='left';
+ series.forEach((s,k)=>{if(!s.name)return})}
+function bars(ctx,vals,o={}){ctx.clearRect(0,0,ctx.W,ctx.H);const n=vals.length;if(!n)return;const top=18,bot=o.labels?18:6;let hi=o.ymax??Math.max(...vals.map(Math.abs),1e-9);const lo=o.ymin??Math.min(0,...vals);if(o.ymin===undefined&&lo<0)hi=Math.max(hi,-lo);const bw=(ctx.W-8)/n;const Y=v=>top+(hi-v)/(hi-lo)*(ctx.H-top-bot);
+ for(let i=0;i<n;i++){const v=vals[i],y0=Y(0),y1=Y(v);ctx.fillStyle=o.colors?o.colors[i%o.colors.length]:(v>=0?C.blue:C.rose);ctx.globalAlpha=(o.hl===undefined||o.hl===i)?1:0.35;ctx.fillRect(4+i*bw+bw*0.12,Math.min(y0,y1),bw*0.76,Math.max(1,Math.abs(y1-y0)));ctx.globalAlpha=1;
+  ctx.font='11px "JetBrains Mono",monospace';ctx.textAlign='center';ctx.fillStyle=C.ink;if(o.labels)ctx.fillText(o.labels[i],4+i*bw+bw/2,ctx.H-4);if(o.values&&bw>26)ctx.fillText(fmt(v,2),4+i*bw+bw/2,Math.min(y0,y1)-4)}
+ ctx.textAlign='left'}
+function ctl(id,cb,f){const el=document.getElementById(id);const out=document.querySelector(`output[for="${id}"]`);const get=()=>{if(el.type==='checkbox')return el.checked;const v=el.value;if(el.type==='text')return v;return(v.trim()!==''&&!isNaN(v))?parseFloat(v):v};
+ const show=()=>{if(out)out.textContent=f?f(get()):get()};el.addEventListener(el.type==='range'||el.type==='text'?'input':'change',()=>{show();cb&&cb(get())});show();return get}
+function readout(rows){document.getElementById('readout').innerHTML=Object.entries(rows).map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}
+function loop(step){let on=false;const f=()=>{if(!on)return;step();requestAnimationFrame(f)};return{start(){if(!on){on=true;requestAnimationFrame(f)}},stop(){on=false},get on(){return on}}}
+function playBtn(id,lp,a='เริ่ม',b='หยุดชั่วคราว'){const el=document.getElementById(id);const sync=()=>el.textContent=lp.on?b:a;el.onclick=()=>{lp.on?lp.stop():lp.start();sync()};sync();return sync}
+function debounce(fn,ms=120){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}}
+function solve(A,b){const n=b.length,M=A.map((r,i)=>[...r,b[i]]);for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;[M[c],M[p]]=[M[p],M[c]];if(Math.abs(M[c][c])<1e-12)continue;for(let r=0;r<n;r++){if(r===c)continue;const f=M[r][c]/M[c][c];for(let k=c;k<=n;k++)M[r][k]-=f*M[c][k]}}return M.map((r,i)=>Math.abs(r[i])<1e-12?0:r[n]/r[i])}
+const sigmoid=z=>1/(1+Math.exp(-z));
+function split(P,ratio,seed){const r=rng(seed+99);P.forEach(p=>p.test=r()<ratio);return P}
+function acc(P,pred){if(!P.length)return NaN;let k=0;for(const p of P)if(pred(p)===p.c)k++;return k/P.length}
+const pct=a=>isNaN(a)?'-':(a*100).toFixed(1)+'%';
+return{C,CLS,reduce,rgba,rng,gauss,setup,onResize,view,pos,data,nclass,paint,frame,dots,contour,fmt,chart,bars,ctl,readout,loop,playBtn,debounce,solve,sigmoid,split,acc,pct}})();
+
+
+const cv=document.getElementById('cv'),mcv=document.getElementById('mat'),pcv=document.getElementById('pe');const D=16;
+let ctx,mctx,pctx,toks=[],Xe=[],PE=[],Att=[],sel=0;
+const text=U.ctl('text',run),mode=U.ctl('mode',run),heads=U.ctl('heads',run),hv=U.ctl('hv',draw,x=>x?'head '+x:'เฉลี่ย'),temp=U.ctl('temp',run,x=>x.toFixed(2)),pew=U.ctl('pew',run,x=>x.toFixed(2)),causal=U.ctl('causal',run),wseed=U.ctl('wseed',run);
+document.getElementById('ex').addEventListener('change',e=>{if(!e.target.value)return;const t=document.getElementById('text');t.value=e.target.value;e.target.value='';run()});
+function tokenize(s){s=s.trim();if(!s)return[];if(window.Intl&&Intl.Segmenter){const seg=new Intl.Segmenter('th',{granularity:'word'});return[...seg.segment(s)].filter(x=>x.isWordLike||/\S/.test(x.segment)&&!/^\s+$/.test(x.segment)).map(x=>x.segment.trim()).filter(Boolean).slice(0,18)}return s.split(/\s+/).slice(0,18)}
+function hash(s){let h=2166136261;for(const ch of s.toLowerCase()){h^=ch.codePointAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function mat(r,a,b){return Array.from({length:a},()=>Array.from({length:b},()=>U.gauss(r)/Math.sqrt(a)))}
+const mul=(X,M)=>X.map(x=>M[0].map((_,j)=>x.reduce((s,v,i)=>s+v*M[i][j],0)));
+function run(){toks=tokenize(text());const n=toks.length;if(sel>=n)sel=0;
+ Xe=toks.map(t=>{const r=U.rng(hash(t));return Array.from({length:D},()=>U.gauss(r))});
+ PE=toks.map((_,p)=>Array.from({length:D},(_,i)=>{const k=Math.floor(i/2),a=p/Math.pow(10000,2*k/D);return i%2?Math.cos(a):Math.sin(a)}));
+ const X=Xe.map((e,p)=>e.map((v,i)=>v+pew()*PE[p][i]*2));
+ Att=[];const H=heads(),dk=8;for(let h=0;h<H;h++){const r=U.rng(wseed()*101+h*7);let Q,K;if(mode()==='ident'){Q=X;K=X}else{Q=mul(X,mat(r,D,dk));K=mul(X,mat(r,D,dk))}
+  const d=Q[0]?Q[0].length:1;const A=Q.map((q,i)=>{const sc=K.map((k,j)=>(causal()&&j>i)?-Infinity:q.reduce((s,v,t)=>s+v*k[t],0)/Math.sqrt(d)/temp());const m=Math.max(...sc),e=sc.map(s=>s===-Infinity?0:Math.exp(s-m)),z=e.reduce((a,b)=>a+b,0);return e.map(x=>x/z)});Att.push(A)}
+ const he=document.getElementById('hv');he.max=H;if(+he.value>H){he.value=H;document.querySelector('output[for="hv"]').textContent='head '+H}draw()}
+function A(){const h=hv();if(h>0&&Att[h-1])return Att[h-1];const n=toks.length;return Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>Att.reduce((s,a)=>s+a[i][j],0)/Att.length))}
+function lay(){const n=toks.length,top=40,rowH=Math.min(34,(ctx.H-top-14)/Math.max(n,1));return{n,top,rowH,xl:ctx.W*0.3,xr:ctx.W*0.7}}
+function draw(){if(!ctx)return;ctx.clearRect(0,0,ctx.W,ctx.H);const M=A(),{n,top,rowH,xl,xr}=lay();
+ ctx.font='600 13px Anuphan,sans-serif';ctx.fillStyle=U.C.muted;ctx.textAlign='right';ctx.fillText('Query (คำที่ถาม)',xl,22);ctx.textAlign='left';ctx.fillText('Key (คำที่ถูกมอง)',xr,22);
+ for(let i=0;i<n;i++)for(let j=0;j<n;j++){const w=M[i][j];if(w<0.01)continue;const on=i===sel;ctx.beginPath();ctx.moveTo(xl+8,top+i*rowH+rowH/2);ctx.bezierCurveTo((xl+xr)/2,top+i*rowH+rowH/2,(xl+xr)/2,top+j*rowH+rowH/2,xr-8,top+j*rowH+rowH/2);ctx.strokeStyle=U.rgba(on?U.C.blue:U.C.slate,on?0.15+0.85*w:0.05+0.25*w);ctx.lineWidth=on?1+9*w:0.6+2*w;ctx.stroke()}
+ ctx.font='15px Anuphan,sans-serif';for(let i=0;i<n;i++){const y=top+i*rowH+rowH/2+5;ctx.textAlign='right';ctx.fillStyle=i===sel?U.C.blue:U.C.ink;ctx.font=(i===sel?'700 ':'')+'15px Anuphan,sans-serif';ctx.fillText(toks[i],xl,y);
+  ctx.textAlign='left';const w=M[sel]?M[sel][i]:0;ctx.fillStyle=U.rgba(U.C.blue,0.1+0.8*w);ctx.fillRect(xr,y-15,Math.max(2,w*(ctx.W-xr-60)),20);ctx.fillStyle=U.C.ink;ctx.font='15px Anuphan,sans-serif';ctx.fillText(toks[i],xr+4,y);ctx.font='11px "JetBrains Mono",monospace';ctx.fillStyle=U.C.muted;ctx.fillText((w*100).toFixed(0)+'%',ctx.W-46,y)}
+ ctx.textAlign='left';
+ if(mctx){const c=mctx;c.clearRect(0,0,c.W,c.H);const lab=Math.min(80,c.W*0.25),cs=Math.min((c.W-lab-4)/Math.max(n,1),(c.H-lab)/Math.max(n,1));c.font='11px Anuphan,sans-serif';
+  for(let i=0;i<n;i++){c.fillStyle=i===sel?U.C.blue:U.C.ink;c.textAlign='right';c.fillText(toks[i].slice(0,8),lab-4,i*cs+cs/2+4);for(let j=0;j<n;j++){c.fillStyle=U.rgba(U.C.blue,0.03+0.95*M[i][j]);c.fillRect(lab+j*cs,i*cs,cs-1,cs-1)}}
+  c.save();for(let j=0;j<n;j++){c.translate(lab+j*cs+cs/2+4,n*cs+6);c.rotate(Math.PI/2.6);c.textAlign='left';c.fillStyle=U.C.ink;c.fillText(toks[j].slice(0,8),0,0);c.setTransform(1,0,0,1,0,0);const d=devicePixelRatio||1;c.setTransform(d,0,0,d,0,0)}c.restore();
+  c.strokeStyle=U.C.ink;c.lineWidth=2;c.strokeRect(lab,sel*cs,n*cs-1,cs-1)}
+ if(pctx){const c=pctx;c.clearRect(0,0,c.W,c.H);const cw=(c.W-30)/D,ch=Math.min(18,(c.H-10)/Math.max(n,1));for(let p=0;p<n;p++){c.fillStyle=U.C.muted;c.font='11px "JetBrains Mono",monospace';c.textAlign='right';c.fillText(p,22,p*ch+ch/2+4);for(let i=0;i<D;i++){const v=PE[p][i];c.fillStyle=U.rgba(v>=0?U.C.blue:U.C.rose,0.05+0.9*Math.abs(v));c.fillRect(30+i*cw,p*ch,cw-1,ch-1)}}c.textAlign='left'}
+ const top3=M[sel]?M[sel].map((w,j)=>[w,toks[j]]).sort((a,b)=>b[0]-a[0]).slice(0,3).map(([w,t])=>t+' '+(w*100).toFixed(0)+'%').join(', '):'-';
+ U.readout({'จำนวนโทเคน':n,'Query ที่เลือก':toks[sel]||'-','สนใจมากที่สุด':top3,'ขนาด embedding':D+' มิติ, d_k = '+(mode()==='ident'?D:8)})}
+function pick(e){const[x,y]=U.pos(e,cv),{n,top,rowH}=lay();const i=Math.floor((y-top)/rowH);if(i>=0&&i<n&&i!==sel){sel=i;draw()}}
+cv.addEventListener('pointermove',pick);cv.addEventListener('pointerdown',pick);
+mcv.addEventListener('pointerdown',e=>{const[x,y]=U.pos(e,mcv),n=toks.length,lab=Math.min(80,mctx.W*0.25),cs=Math.min((mctx.W-lab-4)/n,(mctx.H-lab)/n);const i=Math.floor(y/cs);if(i>=0&&i<n){sel=i;draw()}});
+U.onResize(()=>{ctx=U.setup(cv);mctx=U.setup(mcv);pctx=U.setup(pcv);draw()});
+run();
+
+</script></body></html>
