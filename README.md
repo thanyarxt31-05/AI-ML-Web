@@ -19,21 +19,29 @@
 | 13 | `13-xgboost.html` | XGBoost |
 | 14 | `14-stacking.html` | Stacking |
 
+## ดูหน้าเว็บ
+**https://thanyarxt31-05.github.io/AI-ML-Web/**
+
+ที่อยู่ของ repository (เก็บโค้ด): https://github.com/thanyarxt31-05/AI-ML-Web
+
 ## วิธีเปิดดูในเครื่อง
 ดับเบิลคลิกไฟล์ `index.html` หรือไฟล์ของแต่ละอัลกอริทึม
 
 ## วิธีขึ้น GitHub Pages
-1. สร้าง repository ใหม่บน GitHub (เช่น `ml-visual-lab`) แบบ Public
+1. สร้าง repository แบบ Public (ที่นี่ใช้ชื่อ `AI-ML-Web`)
 2. กด **Add file > Upload files** แล้วลากไฟล์ทั้งหมดในโฟลเดอร์นี้ขึ้นไป แล้วกด **Commit changes**
 3. ไปที่ **Settings > Pages** เลือก Source เป็น **Deploy from a branch**, Branch เป็น `main` และโฟลเดอร์ `/ (root)` แล้วกด **Save**
-4. รอประมาณ 1 นาที เว็บจะอยู่ที่ `https://<ชื่อผู้ใช้>.github.io/ml-visual-lab/`
+4. รอประมาณ 1 นาที หน้าเว็บจะอยู่ที่ `https://<ชื่อผู้ใช้>.github.io/<ชื่อ repo>/`
+   ชื่อ repo ต้องสะกดตัวพิมพ์ใหญ่-เล็กให้ตรงกับที่ตั้งไว้
 
-หรือใช้คำสั่ง git:
+> ลิงก์ที่ลงท้ายด้วย `.git` (เช่น `https://github.com/<ชื่อผู้ใช้>/<ชื่อ repo>.git`) เป็นที่อยู่ของ repository สำหรับคำสั่ง git เท่านั้น ไม่ใช่ลิงก์หน้าเว็บ
+
+หรืออัปโหลดด้วยคำสั่ง git:
 ```bash
 git init
 git add .
-git commit -m "ML Visual Lab"
+git commit -m "Visualize Machine Learning Algorithm"
 git branch -M main
-git remote add origin https://github.com/<ชื่อผู้ใช้>/ml-visual-lab.git
+git remote add origin https://github.com/thanyarxt31-05/AI-ML-Web.git
 git push -u origin main
 ```
